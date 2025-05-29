@@ -5,10 +5,11 @@ using SIRESU.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Obtener cadena de conexión
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
+// Configurar DbContext para Identity
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
@@ -19,15 +20,22 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 
 builder.Services.AddControllersWithViews();
 
-// 👉 Tu contexto personalizado para SIRESU
+// Contexto personalizado SIRESU
 builder.Services.AddDbContext<SiresuContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddSession();
 
+// Configurar Kestrel para usar puerto dinámico de Render
+var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(int.Parse(port));
+});
+
 var app = builder.Build();
 
-// ✅ Inicializar datos por defecto (admin y cliente)
+// Inicializar datos por defecto (admin y cliente)
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -35,7 +43,7 @@ using (var scope = app.Services.CreateScope())
     DbInitializer.Initialize(context);
 }
 
-// Configure the HTTP request pipeline.
+// Configuración del pipeline HTTP
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();

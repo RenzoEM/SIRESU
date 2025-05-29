@@ -1,4 +1,5 @@
 ﻿using SIRESU.Models;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -10,40 +11,38 @@ namespace SIRESU.Data
         {
             context.Database.EnsureCreated();
 
-            // Si ya hay usuarios, no hacer nada
-            if (context.Usuarios.Any()) return;
-
-            string Hash(string input)
+            if (context.Usuarios.Any())
             {
-                using var sha = SHA256.Create();
-                var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(input));
-                return Convert.ToBase64String(bytes);
+                // La base ya tiene datos
+                return;
             }
 
-            var usuarios = new Usuario[]
+            var admin = new Usuario
             {
-                new Usuario
-                {
-                    Nombre = "Admin Principal",
-                    Correo = "admin@siresu.com",
-                    Contraseña = Hash("admin123"),
-                    Rol = "administrador"
-                },
-                new Usuario
-                {
-                    Nombre = "Cliente Demo",
-                    Correo = "cliente@siresu.com",
-                    Contraseña = Hash("cliente123"),
-                    Rol = "cliente"
-                }
+                Nombre = "Administrador",
+                Correo = "admin@ejemplo.com",
+                Contraseña = ObtenerHashSHA256("admin123"),
+                Rol = "administrador"
             };
 
-            foreach (var u in usuarios)
+            var cliente = new Usuario
             {
-                context.Usuarios.Add(u);
-            }
+                Nombre = "Cliente",
+                Correo = "cliente@ejemplo.com",
+                Contraseña = ObtenerHashSHA256("cliente123"),
+                Rol = "cliente"
+            };
 
+            context.Usuarios.Add(admin);
+            context.Usuarios.Add(cliente);
             context.SaveChanges();
+        }
+
+        private static string ObtenerHashSHA256(string input)
+        {
+            using var sha = SHA256.Create();
+            var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(input));
+            return Convert.ToBase64String(bytes);
         }
     }
 }

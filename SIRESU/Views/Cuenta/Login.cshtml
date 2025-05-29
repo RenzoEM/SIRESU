@@ -1,0 +1,91 @@
+﻿@{
+    Layout = null;
+}
+
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<style>
+    html, body {
+        height: 100%;
+        margin: 0;
+    }
+
+    body {
+        background: linear-gradient(to right, #1f1c2c, #928dab);
+        font-family: 'Segoe UI', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .login-box {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .btn-black {
+        background-color: black;
+        color: white;
+        border: none;
+    }
+
+        .btn-black:hover {
+            background-color: #333;
+            color: white;
+        }
+
+    .google-btn {
+        background-color: #db4437;
+        color: white;
+        font-weight: 500;
+    }
+
+        .google-btn:hover {
+            background-color: #c23321;
+        }
+</style>
+
+<div class="login-box">
+    <div class="text-center mb-4">
+        <h3 class="text-primary fw-bold">SIRESU</h3>
+        <p class="text-muted">Sistema de Reportes de Emergencia</p>
+    </div>
+
+    <form asp-action="Login" method="post">
+        <div class="form-group mb-3">
+            <label for="correo">Correo electrónico</label>
+            <input type="email" name="correo" class="form-control" placeholder="usuario@correo.com" required />
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="contraseña">Contraseña</label>
+            <input type="password" name="contraseña" class="form-control" placeholder="********" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 mb-3">Iniciar Sesión</button>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger">@ViewBag.Error</div>
+        }
+
+        <div class="text-center">
+            <a asp-action="Registro" class="btn btn-black btn-sm">Registrarse</a>
+        </div>
+
+        <hr class="my-4">
+
+        <div class="text-center">
+            <a href="/Cuenta/LoginGoogle" class="btn google-btn w-100">
+                <i class="bi bi-google"></i> Iniciar con Google
+            </a>
+        </div>
+    </form>
+</div>

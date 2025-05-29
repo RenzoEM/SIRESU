@@ -3,10 +3,10 @@ using SIRESU.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Obtener la cadena de conexión
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// Obtén la cadena de conexión desde variable de entorno o appsettings.json
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                       ?? Environment.GetEnvironmentVariable("MYSQL_CONNECTION_STRING");
 
-// Configurar DbContext para MySQL con Pomelo
 builder.Services.AddDbContext<SiresuContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
@@ -15,11 +15,11 @@ builder.Services.AddSession();
 
 var app = builder.Build();
 
-// Inicializar datos por defecto (admin y cliente)
+// Ejecutar migraciones automáticas al iniciar la app
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<SiresuContext>();
-    DbInitializer.Initialize(context);
+    var db = scope.ServiceProvider.GetRequiredService<SiresuContext>();
+    db.Database.Migrate();
 }
 
 if (!app.Environment.IsDevelopment())
